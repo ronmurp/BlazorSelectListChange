@@ -1,0 +1,88 @@
+﻿@page "/"
+@rendermode InteractiveServer
+<div class="my-3">
+	<select @bind="selectedOption">
+		@foreach (var option in options)
+		{
+			<option value="@option.Value">@option.Text</option>
+		}
+	</select>
+</div>
+
+<div class="my-3">
+	<button class="btn btn-primary" @onclick="UpdateOptions">Update Options</button>
+</div>
+
+<div class="my-3">
+	<p>Selected Option: @SelectedOption</p>
+</div>
+
+@code
+{
+    // Class to represent an option
+    public class SelectOption
+    {
+        public string Value { get; set; }
+        public string Text { get; set; }
+    }
+
+    // Property to hold the selected value
+    private string selectedOption = "0"; // Default selected option
+
+    // List of options
+    private List<SelectOption> options = new List<SelectOption>
+    {
+        new SelectOption { Value = "0", Text = "Please select an option" },
+        new SelectOption { Value = "1", Text = "Option 1" },
+        new SelectOption { Value = "2", Text = "Option 2" },
+        new SelectOption { Value = "3", Text = "Option 3" }
+    };
+
+    // Method to change the selected option programmatically
+    private void ChangeSelectedOption()
+    {
+        selectedOption = "3"; // Change to the desired option value
+    }
+
+    // Method to update the options list
+    private void UpdateOptions()
+    {
+        var option = selectedOption;
+
+        // Remove the prompt option ("Please select an option")
+        options = options.Where(option => option.Value != "0").ToList();
+
+        // Ensure the selected option is still valid
+        if (!options.Any(option => option.Value == selectedOption))
+        {
+            // If the selected option is no longer valid, set it to the first valid option
+            selectedOption = options.Any() ? options.First().Value : null;
+        }
+
+        // Force the component to re-render to reflect the changes
+        StateHasChanged();
+
+        SelectedOption = option;
+    }
+
+    // Method to handle the change event
+    private void OnSelectedOptionChanged(string value)
+    {
+        selectedOption = value;
+        // Additional logic when the selection changes ...
+    }
+
+    // Property for binding with custom getter and setter
+    private string SelectedOption
+    {
+        get => selectedOption;
+        set
+        {
+            if (selectedOption != value)
+            {
+                selectedOption = value;
+                OnSelectedOptionChanged(value);
+            }
+        }
+    }
+}
