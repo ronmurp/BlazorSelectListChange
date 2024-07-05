@@ -1,7 +1,8 @@
 ﻿@page "/"
 @rendermode InteractiveServer
+
 <div class="my-3">
-	<select @bind="selectedOption">
+	<select @bind="SelectedOption" @bind:event="onchange">
 		@foreach (var option in options)
 		{
 			<option value="@option.Value">@option.Text</option>
@@ -10,6 +11,7 @@
 </div>
 
 <div class="my-3">
+	<p>This is for testing with the UpdateOptions() at line 85 commented out.</p>
 	<button class="btn btn-primary" @onclick="UpdateOptions">Update Options</button>
 </div>
 
@@ -47,9 +49,10 @@
     // Method to update the options list
     private void UpdateOptions()
     {
-        var option = selectedOption;
+	// Store the current selected option
+	    var previousSelectedOption = selectedOption;
 
-        // Remove the prompt option ("Please select an option")
+		// Remove the prompt option ("Please select an option")
         options = options.Where(option => option.Value != "0").ToList();
 
         // Ensure the selected option is still valid
@@ -58,17 +61,21 @@
             // If the selected option is no longer valid, set it to the first valid option
             selectedOption = options.Any() ? options.First().Value : null;
         }
+        else
+        {
+			// Otherwise, restore the previous selected option
+	        selectedOption = previousSelectedOption;
+        }
 
         // Force the component to re-render to reflect the changes
         StateHasChanged();
 
-        SelectedOption = option;
     }
 
     // Method to handle the change event
     private void OnSelectedOptionChanged(string value)
     {
-        selectedOption = value;
+        
         // Additional logic when the selection changes ...
     }
 
@@ -80,7 +87,11 @@
         {
             if (selectedOption != value)
             {
-                selectedOption = value;
+	            if (options.Any(o => o.Value == "0"))
+	            {
+		           UpdateOptions();
+	            }
+	            selectedOption = value;
                 OnSelectedOptionChanged(value);
             }
         }
